@@ -1,0 +1,31 @@
+
+[
+    {
+        "returnType": "GSTR-1",
+        "period": "June 2024",
+        "dueDate": "2024-07-11",
+        "filingDate": "2024-07-10",
+        "status": "Filed"
+    },
+    {
+        "returnType": "GSTR-3B",
+        "period": "June 2024",
+        "dueDate": "2024-07-20",
+        "filingDate": "2024-07-18",
+        "status": "Filed"
+    },
+    {
+        "returnType": "GSTR-1",
+        "period": "July 2024",
+        "dueDate": "2024-08-11",
+        "filingDate": null,
+        "status": "Pending"
+    },
+    {
+        "returnType": "GSTR-3B",
+        "period": "July 2024",
+        "dueDate": "2024-08-20",
+        "filingDate": null,
+        "status": "Pending"
+    }
+]

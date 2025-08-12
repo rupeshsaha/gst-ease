@@ -1,0 +1,73 @@
+
+[
+  {
+    "invoiceNo": "INV-2024-001",
+    "supplierGstin": "29AABCU9567R1Z5",
+    "customerGstin": "27AAGCB2489F1Z9",
+    "invoiceDate": "2024-07-01",
+    "taxableAmount": 10000.00,
+    "gstAmount": 1800.00,
+    "totalAmount": 11800.00,
+    "status": "Paid"
+  },
+  {
+    "invoiceNo": "INV-2024-002",
+    "supplierGstin": "07AABCS1234G1Z4",
+    "customerGstin": "29AABCU9567R1Z5",
+    "invoiceDate": "2024-07-05",
+    "taxableAmount": 25000.00,
+    "gstAmount": 4500.00,
+    "totalAmount": 29500.00,
+    "status": "Pending"
+  },
+  {
+    "invoiceNo": "INV-2024-003",
+    "supplierGstin": "24AADCC5432H1Z2",
+    "customerGstin": "29AABCU9567R1Z5",
+    "invoiceDate": "2024-07-10",
+    "taxableAmount": 5000.00,
+    "gstAmount": 900.00,
+    "totalAmount": 5900.00,
+    "status": "Paid"
+  },
+  {
+    "invoiceNo": "INV-2024-004",
+    "supplierGstin": "29AABCU9567R1Z5",
+    "customerGstin": "36AAACH4567J1Z3",
+    "invoiceDate": "2024-07-12",
+    "taxableAmount": 12500.00,
+    "gstAmount": 2250.00,
+    "totalAmount": 14750.00,
+    "status": "Overdue"
+  },
+  {
+    "invoiceNo": "INV-2024-005",
+    "supplierGstin": "19AABCF3322K1Z5",
+    "customerGstin": "29AABCU9567R1Z5",
+    "invoiceDate": "2024-07-15",
+    "taxableAmount": 30000.00,
+    "gstAmount": 5400.00,
+    "totalAmount": 35400.00,
+    "status": "Paid"
+  },
+    {
+    "invoiceNo": "INV-2024-006",
+    "supplierGstin": "29AABCU9567R1Z5",
+    "customerGstin": "06AADCE2345F1Z1",
+    "invoiceDate": "2024-07-18",
+    "taxableAmount": 8000.00,
+    "gstAmount": 1440.00,
+    "totalAmount": 9440.00,
+    "status": "Pending"
+  },
+  {
+    "invoiceNo": "INV-2024-007",
+    "supplierGstin": "22AABCA6789B1Z2",
+    "customerGstin": "29AABCU9567R1Z5",
+    "invoiceDate": "2024-07-20",
+    "taxableAmount": 50000.00,
+    "gstAmount": 9000.00,
+    "totalAmount": 59000.00,
+    "status": "Paid"
+  }
+]
