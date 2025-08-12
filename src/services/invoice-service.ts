@@ -1,12 +1,10 @@
 'use server';
 
-import { parseInvoiceFlow, ParseInvoiceInputSchema, ParsedInvoiceOutputSchema } from "@/ai/flows/parse-invoice-flow";
-import { z } from "zod";
+import { parseInvoice as parseInvoiceFlow } from "@/ai/flows/parse-invoice-flow";
+import { ParseInvoiceInput, ParsedInvoice } from "@/lib/types";
 
-export type InvoiceInput = z.infer<typeof ParseInvoiceInputSchema>;
-export type ParsedInvoice = z.infer<typeof ParsedInvoiceOutputSchema>;
 
-export async function parseInvoice(input: InvoiceInput): Promise<ParsedInvoice | null> {
+export async function parseInvoice(input: ParseInvoiceInput): Promise<ParsedInvoice | null> {
     try {
         const parsedData = await parseInvoiceFlow(input);
         return parsedData;

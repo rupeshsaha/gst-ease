@@ -2,34 +2,14 @@
 /**
  * @fileOverview An AI-powered invoice parser.
  *
- * - parseInvoiceFlow - A function that handles the invoice parsing process.
- * - ParseInvoiceInputSchema - The input type for the parseInvoiceFlow function.
- * - ParsedInvoiceOutputSchema - The return type for the parseInvoiceFlow function.
+ * - parseInvoice - A function that handles the invoice parsing process.
+ * - ParseInvoiceInput - The input type for the parseInvoice function.
+ * - ParsedInvoiceOutput - The return type for the parseInvoice function.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
+import { ParseInvoiceInputSchema, ParseInvoiceInput, ParsedInvoiceOutputSchema, ParsedInvoiceOutput } from '@/lib/types';
 
-export const ParseInvoiceInputSchema = z.object({
-  fileName: z.string().describe('The name of the invoice file.'),
-  fileDataUri: z
-    .string()
-    .describe(
-      "A PDF or image of an invoice, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
-    ),
-});
-export type ParseInvoiceInput = z.infer<typeof ParseInvoiceInputSchema>;
-
-export const ParsedInvoiceOutputSchema = z.object({
-  invoiceNo: z.string().describe('The invoice number.'),
-  supplierGstin: z.string().describe("The supplier's GST Identification Number."),
-  customerGstin: z.string().describe("The customer's GST Identification Number."),
-  invoiceDate: z.string().describe('The date of the invoice in YYYY-MM-DD format.'),
-  taxableAmount: z.number().describe('The total taxable amount.'),
-  gstAmount: z.number().describe('The total GST amount (CGST + SGST or IGST).'),
-  totalAmount: z.number().describe('The final total amount of the invoice.'),
-});
-export type ParsedInvoiceOutput = z.infer<typeof ParsedInvoiceOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'parseInvoicePrompt',
@@ -53,7 +33,7 @@ Ensure all extracted data is in the correct format as specified in the output sc
 `,
 });
 
-export const parseInvoiceFlow = ai.defineFlow(
+const parseInvoiceFlow = ai.defineFlow(
   {
     name: 'parseInvoiceFlow',
     inputSchema: ParseInvoiceInputSchema,
@@ -67,3 +47,8 @@ export const parseInvoiceFlow = ai.defineFlow(
     return output;
   }
 );
+
+
+export async function parseInvoice(input: ParseInvoiceInput): Promise<ParsedInvoiceOutput> {
+  return parseInvoiceFlow(input);
+}

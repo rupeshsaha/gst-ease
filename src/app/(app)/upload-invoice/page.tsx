@@ -7,9 +7,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { FileUploader } from "@/components/FileUploader";
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Save } from 'lucide-react';
-import type { InvoiceInput, ParsedInvoice } from '@/services/invoice-service';
 import { parseInvoice } from '@/services/invoice-service';
 import { Input } from '@/components/ui/input';
+import { InvoiceInput, ParsedInvoice } from '@/lib/types';
 
 export default function UploadInvoicePage() {
   const [parsedData, setParsedData] = useState<ParsedInvoice | null>(null);
@@ -72,9 +72,11 @@ export default function UploadInvoicePage() {
 
   const handleSave = () => {
     if (parsedData) {
-      const existingInvoices: InvoiceInput[] = JSON.parse(localStorage.getItem('invoices') || '[]');
-      const newInvoice: InvoiceInput = {
+      const existingInvoices: (InvoiceInput & { status: string })[] = JSON.parse(localStorage.getItem('invoices') || '[]');
+      const newInvoice: InvoiceInput & { status: string } = {
         ...parsedData,
+        fileName: file?.name || 'unknown',
+        fileDataUri: '',
         status: "Pending", // Default status
       };
       localStorage.setItem('invoices', JSON.stringify([...existingInvoices, newInvoice]));
