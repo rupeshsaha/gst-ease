@@ -6,54 +6,85 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { FileUploader } from "@/components/FileUploader";
 import { useToast } from '@/hooks/use-toast';
-import { Save } from 'lucide-react';
-
-type ParsedInvoice = {
-  invoiceNo: string;
-  supplierGstin: string;
-  customerGstin: string;
-  invoiceDate: string;
-  taxableAmount: number;
-  gstAmount: number;
-  totalAmount: number;
-};
-
-const dummyParsedData: ParsedInvoice = {
-  invoiceNo: "INV-2024-008",
-  supplierGstin: "33ABCDE1234F1Z5",
-  customerGstin: "29AABCU9567R1Z5",
-  invoiceDate: "2024-07-25",
-  taxableAmount: 15000.00,
-  gstAmount: 2700.00,
-  totalAmount: 17700.00,
-};
+import { Loader2, Save } from 'lucide-react';
+import type { InvoiceInput, ParsedInvoice } from '@/services/invoice-service';
+import { parseInvoice } from '@/services/invoice-service';
+import { Input } from '@/components/ui/input';
 
 export default function UploadInvoicePage() {
   const [parsedData, setParsedData] = useState<ParsedInvoice | null>(null);
+  const [isParsing, setIsParsing] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
   const { toast } = useToast();
 
-  const handleFileUpload = (file: File) => {
-    if (file) {
-      // Simulate file processing and parsing
-      setTimeout(() => {
-        setParsedData(dummyParsedData);
-        toast({
-            title: "File Processed",
-            description: "Invoice data has been parsed successfully.",
+  const handleFileUpload = async (file: File) => {
+    if (!file) {
+      setParsedData(null);
+      setFile(null);
+      return;
+    }
+
+    setFile(file);
+    setIsParsing(true);
+    setParsedData(null);
+
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = async () => {
+        const base64data = reader.result as string;
+        const result = await parseInvoice({
+          fileName: file.name,
+          fileDataUri: base64data,
         });
-      }, 1000);
-    } else {
-        setParsedData(null);
+
+        if (result) {
+          setParsedData(result);
+          toast({
+            title: 'File Processed',
+            description: 'Invoice data has been parsed successfully.',
+          });
+        } else {
+          throw new Error('Parsing failed');
+        }
+      };
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: 'destructive',
+        title: 'Parsing Failed',
+        description: 'Could not extract data from the invoice. Please try another file.',
+      });
+      setParsedData(null);
+    } finally {
+      setIsParsing(false);
+    }
+  };
+
+  const handleFieldChange = (field: keyof ParsedInvoice, value: string) => {
+    if (parsedData) {
+      const updatedValue = ['taxableAmount', 'gstAmount', 'totalAmount'].includes(field)
+        ? parseFloat(value) || 0
+        : value;
+      setParsedData({ ...parsedData, [field]: updatedValue });
     }
   };
 
   const handleSave = () => {
     if (parsedData) {
-        toast({
-            title: "Invoice Saved",
-            description: `Invoice ${parsedData.invoiceNo} has been saved to your records.`,
-        });
-        setParsedData(null);
+      const existingInvoices: InvoiceInput[] = JSON.parse(localStorage.getItem('invoices') || '[]');
+      const newInvoice: InvoiceInput = {
+        ...parsedData,
+        status: "Pending", // Default status
+      };
+      localStorage.setItem('invoices', JSON.stringify([...existingInvoices, newInvoice]));
+
+      toast({
+        title: 'Invoice Saved',
+        description: `Invoice ${parsedData.invoiceNo} has been saved to your records.`,
+      });
+      setParsedData(null);
+      setFile(null); 
     }
   };
 
@@ -68,44 +99,48 @@ export default function UploadInvoicePage() {
 
       <Card>
         <CardHeader>
-            <CardTitle>Invoice Uploader</CardTitle>
+          <CardTitle>Invoice Uploader</CardTitle>
         </CardHeader>
         <CardContent>
-            <FileUploader onFileUpload={handleFileUpload} />
+          <FileUploader onFileUpload={handleFileUpload} file={file} isUploading={isParsing}/>
         </CardContent>
       </Card>
-      
+
+      {isParsing && (
+        <div className="flex items-center justify-center py-10">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="ml-4 text-muted-foreground">Parsing your invoice, please wait...</p>
+        </div>
+      )}
 
       {parsedData && (
         <Card>
-            <CardHeader>
-                <CardTitle>Parsed Invoice Data</CardTitle>
-                <CardDescription>Review the parsed data below before saving.</CardDescription>
-            </CardHeader>
+          <CardHeader>
+            <CardTitle>Parsed Invoice Data</CardTitle>
+            <CardDescription>Review and edit the parsed data below before saving.</CardDescription>
+          </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Invoice No</TableHead>
-                    <TableHead>Supplier GSTIN</TableHead>
-                    <TableHead>Customer GSTIN</TableHead>
-                    <TableHead>Invoice Date</TableHead>
-                    <TableHead className="text-right">Taxable Amount</TableHead>
-                    <TableHead className="text-right">GST Amount</TableHead>
-                    <TableHead className="text-right">Total Amount</TableHead>
+                    <TableHead>Field</TableHead>
+                    <TableHead>Value</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell>{parsedData.invoiceNo}</TableCell>
-                    <TableCell>{parsedData.supplierGstin}</TableCell>
-                    <TableCell>{parsedData.customerGstin}</TableCell>
-                    <TableCell>{parsedData.invoiceDate}</TableCell>
-                    <TableCell className="text-right">{parsedData.taxableAmount.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">{parsedData.gstAmount.toFixed(2)}</TableCell>
-                    <TableCell className="text-right font-semibold">{parsedData.totalAmount.toFixed(2)}</TableCell>
-                  </TableRow>
+                  {Object.entries(parsedData).map(([key, value]) => (
+                    <TableRow key={key}>
+                      <TableCell className="font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</TableCell>
+                      <TableCell>
+                        <Input
+                          value={String(value)}
+                          onChange={(e) => handleFieldChange(key as keyof ParsedInvoice, e.target.value)}
+                          className="h-8"
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>

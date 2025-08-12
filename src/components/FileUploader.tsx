@@ -1,21 +1,20 @@
 "use client";
 
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { UploadCloud, File as FileIcon, X } from 'lucide-react';
+import { UploadCloud, File as FileIcon, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface FileUploaderProps {
-  onFileUpload: (file: File) => void;
+  onFileUpload: (file: File | null) => void;
+  file: File | null;
+  isUploading: boolean;
 }
 
-export function FileUploader({ onFileUpload }: FileUploaderProps) {
-  const [file, setFile] = useState<File | null>(null);
-
+export function FileUploader({ onFileUpload, file, isUploading }: FileUploaderProps) {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles && acceptedFiles.length > 0) {
       const selectedFile = acceptedFiles[0];
-      setFile(selectedFile);
       onFileUpload(selectedFile);
     }
   }, [onFileUpload]);
@@ -28,22 +27,28 @@ export function FileUploader({ onFileUpload }: FileUploaderProps) {
       'application/pdf': [],
     },
     multiple: false,
+    disabled: isUploading,
   });
 
   const removeFile = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setFile(null);
-    onFileUpload(null!);
+    onFileUpload(null);
   };
 
   return (
     <div
       {...getRootProps()}
-      className={`relative flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors duration-300
-      ${isDragActive ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
+      className={`relative flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-lg transition-colors duration-300
+      ${isDragActive ? 'border-primary bg-primary/10' : 'border-border'}
+      ${isUploading ? 'cursor-not-allowed bg-muted/50' : 'cursor-pointer hover:border-primary/50'}`}
     >
       <input {...getInputProps()} />
-      {file ? (
+      {isUploading ? (
+        <div className="text-center">
+            <Loader2 className="w-16 h-16 text-primary animate-spin" />
+            <p className="mt-4 font-semibold text-foreground">Processing...</p>
+        </div>
+      ) : file ? (
         <div className="text-center">
             <div className="relative inline-block">
                 <FileIcon className="w-16 h-16 text-primary" />
